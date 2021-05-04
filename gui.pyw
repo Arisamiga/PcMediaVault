@@ -35,8 +35,9 @@ langlist = [
   "Irish",
 ]
 # Find Window Picture
-window_picture = os.path.abspath("images/logo_128.ico")
+window_picture = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images/logo_128.ico")
 window_picture = window_picture.replace("\\", "/")
+
 # Text Position
 def TextLabel(text): return sg.Text(text+':', justification='left', size=(7,1), pad=(5,10))
 def TextLabelc(text): return sg.Text(text+':', justification='center', size=(7,1), pad=(110,10))
