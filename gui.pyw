@@ -96,6 +96,10 @@ while True:
     # Event when someone presses Play
     if event == "Play":
       indexurl = radiochannels.index(values['fac'][0])
+      try:
+       os.system("taskkill /im vlc.exe /f")
+      except:
+        os.system("killall -KILL vlc")
       os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
       window['cp'].update(f"Currently Playing: {values['fac'][0]}")
     # Event when someone presses The Filter Stations
