@@ -96,11 +96,20 @@ while True:
     # Event when someone presses Play
     if event == "Play":
       indexurl = radiochannels.index(values['fac'][0])
+    # Kill old vlc
       try:
        os.system("taskkill /im vlc.exe /f")
-      except:
+      except ImportError:
+        throw ("A module is missing or its not installed corrently")
+      else:
         os.system("killall -KILL vlc")
-      os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
+    # Start VLC
+      try:
+        os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
+      except ImportError:
+          throw ("A module is missing or its not installed corrently")
+      else:
+        os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
       window['cp'].update(f"Currently Playing: {values['fac'][0]}")
     # Event when someone presses The Filter Stations
     if event == 'Filter Stations':
