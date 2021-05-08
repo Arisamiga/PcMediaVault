@@ -100,14 +100,14 @@ while True:
       try:
        os.system("taskkill /im vlc.exe /f")
       except ImportError:
-        throw ("A module is missing or its not installed corrently")
+        print("A module is missing or its not installed corrently")
       else:
         os.system("killall -KILL vlc")
     # Start VLC
       try:
         os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
       except ImportError:
-          throw ("A module is missing or its not installed corrently")
+          print("A module is missing or its not installed corrently")
       else:
         os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
       window['cp'].update(f"Currently Playing: {values['fac'][0]}")
