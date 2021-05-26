@@ -130,6 +130,7 @@ while True:
     if event == 'Filter Stations':
         radiochannels.clear()
         urlsplay.clear()
+        imageofradio.clear()
       # Call api
         # print(urlofapi)
         response = requests.get(urlofapi)
