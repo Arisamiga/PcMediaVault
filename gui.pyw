@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import requests
 import os
-
+from PIL import Image
 
 # Set color background
 sg.theme('GrayGrayGray')
@@ -9,6 +9,8 @@ sg.theme('GrayGrayGray')
 radiochannels = []
 # Available urls
 urlsplay = []
+# Available url images
+imageofradio = []
 # Country List
 countrylist = [
   "All Countries",
@@ -58,7 +60,7 @@ layout = [
             ],
             [sg.Button('Filter Stations', button_color=('#d1cfcd'), size=(70,1))],
             [sg.Text("Station")],
-            [sg.Listbox(values=radiochannels, select_mode='extended', key='fac', size=(50, 30))],
+            [sg.Listbox(values=radiochannels, select_mode='extended', key='fac', size=(50, 30)), sg.Image(filename="", size=(10, 10), pad=(50,10), key='ri' )],
             [sg.Button('Play', button_color=('#d1cfcd'), size=(35,1)), sg.Text("Currently Playing: Nothing", pad=(50,10), key='cp')],
         ]
 
@@ -95,21 +97,49 @@ while True:
         break
     # Event when someone presses Play
     if event == "Play":
-      indexurl = radiochannels.index(values['fac'][0])
-      os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
-      window['cp'].update(f"Currently Playing: {values['fac'][0]}")
+      if not radiochannels:
+        print("Haha no crash")
+      else:
+        indexurl = radiochannels.index(values['fac'][0])
+        # Download Radio Icon
+        if os.path.exists(f"./radio_images/{str(indexurl)}.png") != True and imageofradio[indexurl] != "":
+          response = requests.get(imageofradio[indexurl])
+          file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
+          file.write(response.content)
+          file.close()
+          image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
+          new_image = image.resize((300, 300))
+          new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
+          window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+        # Kill old vlc
+          try:
+            os.system("taskkill /im vlc.exe /f")
+          except ImportError:
+            print("A module is missing or its not installed corrently")
+          else:
+            os.system("killall -KILL vlc")
+        # Start VLC
+          try:
+            os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
+          except ImportError:
+              print("A module is missing or its not installed corrently")
+          else:
+            os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
+          window['cp'].update(f"Currently Playing: {values['fac'][0]}")
     # Event when someone presses The Filter Stations
     if event == 'Filter Stations':
         radiochannels.clear()
         urlsplay.clear()
       # Call api
-        print(urlofapi)
+        # print(urlofapi)
         response = requests.get(urlofapi)
         response = response.json()
+        # print(response)
         length = len(response)
         for i in range(length):
             radiochannels.insert(len(radiochannels), response[i]['name'])
             urlsplay.insert(len(urlsplay), response[i]['url'])
+            imageofradio.insert(len(imageofradio), response[i]['favicon'])
         # update list
         window.FindElement('fac').Update(values=radiochannels)
 
