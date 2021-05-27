@@ -108,24 +108,24 @@ while True:
           file.write(response.content)
           file.close()
           image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
-          new_image = image.resize((300, 300))
+          new_image = image.resize((100, 100))
           new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
           window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+        window['cp'].update(value=f"Currently Playing: {str(values['fac'][0])}")
         # Kill old vlc
-          try:
-            os.system("taskkill /im vlc.exe /f")
-          except ImportError:
-            print("A module is missing or its not installed corrently")
-          else:
-            os.system("killall -KILL vlc")
+        try:
+          os.system("taskkill /im vlc.exe /f")
+        except ImportError:
+          print("A module is missing or its not installed corrently")
+        else:
+          os.system("killall -KILL vlc")
         # Start VLC
-          try:
-            os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
-          except ImportError:
-              print("A module is missing or its not installed corrently")
-          else:
-            os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
-          window['cp'].update(f"Currently Playing: {values['fac'][0]}")
+        try:
+          os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
+        except ImportError:
+            print("A module is missing or its not installed corrently")
+        else:
+          os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
     # Event when someone presses The Filter Stations
     if event == 'Filter Stations':
         radiochannels.clear()
