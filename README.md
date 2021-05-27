@@ -14,6 +14,9 @@ The application uses Python with PySimpleGui and the Radio api to fetch radio ch
  * [Python 3.9+](https://www.python.org/)
  * [VLC](https://www.videolan.org/vlc/) (More players will be available in the future)
 
+## Taking too much space?
+If your PcMediaVault folder is taking a lot of space dont forget to remove some of the radio images in the `radio_images` Folder.
+
 ## Code and bug reporting
 The original project is open source and you can find the application code at: <br>
 https://github.com/walkero-gr/mediavault
