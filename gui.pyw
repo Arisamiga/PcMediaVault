@@ -118,28 +118,35 @@ while True:
         print("Haha no crash")
       else:
         indexurl = radiochannels.index(values['fac'][0])
-        # Download Radio Icon
+        # Check if There is a image url
         if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] == "":
             window['ri'].update(filename="./images/NoImage.png")
 
+        # Download Radio Icon
         if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] != "":
           response = requests.get(imageofradio[indexurl])
           file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
           file.write(response.content)
           file.close()
-          if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != None:
+
+        # Check if file is a image and if it is use it.
+        if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != None:
             image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
             new_image = image.resize((100, 100))
             new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
             window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
-            if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != "png":
-                window['ri'].update(filename="./images/NoImage.png")
 
-            if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
-                window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
-          else:
+        # If Image is not a png then replace with NoRadio Image
+        if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != "png":
             window['ri'].update(filename="./images/NoImage.png")
+
+        # Check if the png file actually exists.
+        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
+            window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+
+        # Update Title for playing.
         window['cp'].update(value=f"Currently Playing: {str(values['fac'][0])}")
+
         # Kill old vlc
         try:
           os.system("taskkill /im vlc.exe /f")
