@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import Print
 import requests
 import os
 from PIL import Image
@@ -23,7 +24,7 @@ countrylist = [
 ]
 # Genre List
 genrelist = [
-	"All Genres",
+  "All Genres",
   "Blues",
   "Classic Rock",
   "Heavy Metal",
@@ -46,6 +47,14 @@ def TextLabelc(text): return sg.Text(text+':', justification='center', size=(7,1
 def TextLabelr(text): return sg.Text(text+':', size=(7,1), pad=(12,10))
 
 # Define the window's contents
+layoutradio = [
+    [
+        sg.Image(filename="", size=(10, 10), pad=(25,10), key='ri' )
+    ],
+    [
+        sg.Text("\nCurrently Playing: Nothing", pad = (0,20), key='cp')
+    ],
+    ]
 layout = [
             [sg.Text("Filter stations by",text_color="#6e9cd7")],
             [sg.Text("Name")],     # Part 2 - The Layout
@@ -60,8 +69,8 @@ layout = [
             ],
             [sg.Button('Filter Stations', button_color=('#d1cfcd'), size=(70,1))],
             [sg.Text("Station")],
-            [sg.Listbox(values=radiochannels, select_mode='extended', key='fac', size=(50, 30)), sg.Image(filename="", size=(10, 10), pad=(50,10), key='ri' )],
-            [sg.Button('Play', button_color=('#d1cfcd'), size=(35,1)), sg.Text("Currently Playing: Nothing", pad=(50,10), key='cp')],
+            [sg.Listbox(values=radiochannels, select_mode='extended', key='fac', size=(50, 30)), sg.Column(layoutradio)],
+            [sg.Button('Play', button_color=('#d1cfcd'), size=(35,1))],
         ]
 
 # Create the window with a picture
@@ -102,7 +111,9 @@ while True:
       else:
         indexurl = radiochannels.index(values['fac'][0])
         # Download Radio Icon
-        if os.path.exists(f"./radio_images/{str(indexurl)}.png") != True and imageofradio[indexurl] != "":
+        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] == "":
+            window['ri'].update(filename=f"./images/NoImage.png")
+        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] != "":
           response = requests.get(imageofradio[indexurl])
           file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
           file.write(response.content)
@@ -111,6 +122,8 @@ while True:
           new_image = image.resize((100, 100))
           new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
           window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
+            window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
         window['cp'].update(value=f"Currently Playing: {str(values['fac'][0])}")
         # Kill old vlc
         try:
