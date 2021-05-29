@@ -10,6 +10,7 @@ The application uses Python with PySimpleGui and the Radio api to fetch radio ch
 
 ## Requirements
  * [PySimpleGUI](https://pypi.org/project/PySimpleGUI/)
+ * [Pillow](https://pypi.org/project/Pillow/)
  * [Requests](https://pypi.org/project/requests/)
  * [Python 3.9+](https://www.python.org/)
  * [VLC](https://www.videolan.org/vlc/) (More players will be available in the future)
