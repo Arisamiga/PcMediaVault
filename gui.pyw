@@ -1,8 +1,9 @@
 import PySimpleGUI as sg
-from PySimpleGUI.PySimpleGUI import Print
 import requests
 import os
 from PIL import Image
+import glob
+import imghdr
 
 # Set color background
 sg.theme('GrayGrayGray')
@@ -67,10 +68,10 @@ layout = [
                 sg.Combo(countrylist, default_value=countrylist[0], size=(20, 1), pad=(10,10), key='country'),
                 sg.Combo(langlist, default_value=langlist[0], size=(20, 1), pad=(10,10), key='lang')
             ],
-            [sg.Button('Filter Stations', button_color=('#d1cfcd'), size=(70,1))],
+            [sg.Button('Discover', button_color=('#d1cfcd'), size=(70,1))],
             [sg.Text("Station")],
             [sg.Listbox(values=radiochannels, select_mode='extended', key='fac', size=(50, 30)), sg.Column(layoutradio)],
-            [sg.Button('Play', button_color=('#d1cfcd'), size=(35,1))],
+            [sg.Button('Play', button_color=('#d1cfcd'), size=(35,1)), sg.Text("                      ") ,sg.Button('Clear Cache', button_color=('#d1cfcd'), size=(15,1)), sg.Text("", key='fb')],
         ]
 
 # Create the window with a picture
@@ -104,6 +105,13 @@ while True:
       urlofapi = urlofapi + f"&tag={genre}"
     if event == sg.WIN_CLOSED: # if user closes window
         break
+    # Event when someone presses clear Cache
+    window["fb"].update(value="")
+    if event == "Clear Cache":
+        files = glob.glob('./radio_images/*')
+        for f in files:
+            os.remove(f)
+        window["fb"].update(value="✓")
     # Event when someone presses Play
     if event == "Play":
       if not radiochannels:
@@ -112,18 +120,25 @@ while True:
         indexurl = radiochannels.index(values['fac'][0])
         # Download Radio Icon
         if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] == "":
-            window['ri'].update(filename=f"./images/NoImage.png")
+            window['ri'].update(filename="./images/NoImage.png")
+
         if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] != "":
           response = requests.get(imageofradio[indexurl])
           file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
           file.write(response.content)
           file.close()
-          image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
-          new_image = image.resize((100, 100))
-          new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
-          window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
-        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
+          if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != None:
+            image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
+            new_image = image.resize((100, 100))
+            new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
             window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+            if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != "png":
+                window['ri'].update(filename="./images/NoImage.png")
+
+            if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
+                window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+          else:
+            window['ri'].update(filename="./images/NoImage.png")
         window['cp'].update(value=f"Currently Playing: {str(values['fac'][0])}")
         # Kill old vlc
         try:
@@ -140,7 +155,7 @@ while True:
         else:
           os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
     # Event when someone presses The Filter Stations
-    if event == 'Filter Stations':
+    if event == 'Discover':
         radiochannels.clear()
         urlsplay.clear()
         imageofradio.clear()
@@ -156,6 +171,5 @@ while True:
             imageofradio.insert(len(imageofradio), response[i]['favicon'])
         # update list
         window.FindElement('fac').Update(values=radiochannels)
-
 # # Finish up by removing from the screen
 # window.close()
