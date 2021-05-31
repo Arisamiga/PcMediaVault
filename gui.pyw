@@ -47,11 +47,11 @@ window_picture = window_picture.replace("\\", "/")
 def Cast_window(indexurl,imageurl,nameofradio, playurls):
     layout = [
                 [sg.Text("Enter your Chromecast's Name",text_color="#6590c7")],
-                [sg.Text(f" ")],
+                [sg.Text(" ")],
                 [sg.Text(f"Choice for cast: {nameofradio}")],
                 [sg.Input("", pad=(5,5), key='cast')],
                 [sg.Button('Cast', button_color=('#d1cfcd'), size=(15,1))],
-                [sg.Text(f"\nCurrently Casting on: Nothing", key="response_")],
+                [sg.Text("\nCurrently Casting on: Nothing", key="response_")],
             ]
 
     window = sg.Window('Cast', layout, icon=window_picture)
