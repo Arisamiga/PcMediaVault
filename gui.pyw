@@ -4,6 +4,7 @@ import os
 from PIL import Image
 import glob
 import imghdr
+import pychromecast
 
 # Set color background
 sg.theme('GrayGrayGray')
@@ -42,6 +43,53 @@ langlist = [
 window_picture = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images/logo_128.ico")
 window_picture = window_picture.replace("\\", "/")
 
+# Cast Window
+def Cast_window(indexurl,imageurl,nameofradio, playurls):
+    layout = [
+                [sg.Text("Enter your Chromecast's Name",text_color="#6590c7")],
+                [sg.Text(f" ")],
+                [sg.Text(f"Choice for cast: {nameofradio}")],
+                [sg.Input("", pad=(5,5), key='cast')],
+                [sg.Button('Cast', button_color=('#d1cfcd'), size=(15,1))],
+                [sg.Text(f"\nCurrently Casting on: Nothing", key="response_")],
+            ]
+
+    window = sg.Window('Cast', layout, icon=window_picture)
+    while True:
+        event, values = window.read()
+        if event == "Exit" or event == sg.WIN_CLOSED:
+            break
+        if event == "Cast":
+
+            # List chromecasts on the network, but don't connect
+            browser = pychromecast.discovery.discover_chromecasts()
+
+            # Shut down discovery
+            pychromecast.discovery.stop_discovery(browser)
+
+            # Discover and connect to chromecasts with given name
+            chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[f"{values['cast']}"])
+            [cc.device.friendly_name for cc in chromecasts]
+
+            #  Check if the chromecast exists
+            if not chromecasts:
+                window["response_"].update(f"Unable to cast to: {values['cast']}! ", text_color= "#a62d2d")
+            else:
+                cast = chromecasts[0]
+                # Start worker thread and wait for cast device to be ready
+                cast.wait()
+                mc = cast.media_controller
+                # Sent media to Chromecast
+                mc.play_media(f'{playurls}', 'audio/mp3', title=f'{nameofradio}', thumb=f"{imageurl}")
+                mc.title
+                mc.block_until_active()
+                mc.pause()
+                mc.play()
+                window["response_"].update(f"Currently Casting on: {values['cast']}! ", text_color= "#000000")
+                window['cast'].update("")
+
+                # Shut down discovery
+                pychromecast.discovery.stop_discovery(browser)
 # Text Position
 def TextLabel(text): return sg.Text(text+':', justification='left', size=(7,1), pad=(5,10))
 def TextLabelc(text): return sg.Text(text+':', justification='center', size=(7,1), pad=(110,10))
@@ -49,15 +97,19 @@ def TextLabelr(text): return sg.Text(text+':', size=(7,1), pad=(12,10))
 
 # Define the window's contents
 layoutradio = [
-    [
-        sg.Image(filename="", size=(10, 10), pad=(25,10), key='ri' )
-    ],
-    [
-        sg.Text("\nCurrently Playing: Nothing", pad = (0,20), key='cp')
-    ],
-    ]
+                [
+                    sg.Image(filename="", size=(10, 10), pad=(25,10), key='ri' )
+                ],
+                [
+                    sg.Text("\nCurrently Playing: Nothing", pad = (0,20), key='cp')
+                ],
+              ]
 layout = [
-            [sg.Text("Filter stations by",text_color="#6e9cd7")],
+            [
+                sg.Text("Filter stations by",text_color="#6e9cd7"),
+                sg.Text("                                                                                                    "),
+                sg.Button('Cast', button_color=('#d1cfcd'), size=(5,1))
+            ],
             [sg.Text("Name")],     # Part 2 - The Layout
             [sg.Input("", pad=(10,10), key='nameinput')],
             [
@@ -105,13 +157,29 @@ while True:
       urlofapi = urlofapi + f"&tag={genre}"
     if event == sg.WIN_CLOSED: # if user closes window
         break
-    # Event when someone presses clear Cache
+
+    # Reset Checkmark
     window["fb"].update(value="")
+
+    # When someone clicks the Cast button
+    if event == "Cast":
+        # Check if a radio channel has been chosen.
+        if not radiochannels:
+            print("Haha no crash")
+        else:
+            indexurl = radiochannels.index(values['fac'][0])
+            nameofradio = values['fac'][0]
+            imageurl = imageofradio[indexurl]
+            playurls = urlsplay[indexurl]
+            Cast_window(indexurl,imageurl,nameofradio, playurls)
+
+    # When someone clicks the Clear Cache Button
     if event == "Clear Cache":
         files = glob.glob('./radio_images/*')
         for f in files:
             os.remove(f)
         window["fb"].update(value="✓")
+
     # Event when someone presses Play
     if event == "Play":
       if not radiochannels:
@@ -121,28 +189,28 @@ while True:
         # Check if There is a image url
         if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] == "":
             window['ri'].update(filename="./images/NoImage.png")
+        else:
+            # Download Radio Icon
+            if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] != "":
+                response = requests.get(imageofradio[indexurl])
+                file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
+                file.write(response.content)
+                file.close()
 
-        # Download Radio Icon
-        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] != "":
-          response = requests.get(imageofradio[indexurl])
-          file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
-          file.write(response.content)
-          file.close()
+            # Check if file is a image and if it is use it.
+            if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != None:
+                image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
+                new_image = image.resize((100, 100))
+                new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
+                window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
 
-        # Check if file is a image and if it is use it.
-        if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != None:
-            image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
-            new_image = image.resize((100, 100))
-            new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
-            window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+            # If Image is not a png then replace with NoRadio Image
+            if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != "png":
+                window['ri'].update(filename="./images/NoImage.png")
 
-        # If Image is not a png then replace with NoRadio Image
-        if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != "png":
-            window['ri'].update(filename="./images/NoImage.png")
-
-        # Check if the png file actually exists.
-        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
-            window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+            # Check if the png file actually exists.
+            if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
+                window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
 
         # Update Title for playing.
         window['cp'].update(value=f"Currently Playing: {str(values['fac'][0])}")
@@ -161,22 +229,22 @@ while True:
             print("A module is missing or its not installed corrently")
         else:
           os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
-    # Event when someone presses The Filter Stations
+
+    # Event when someone presses Discorver Button
     if event == 'Discover':
         radiochannels.clear()
         urlsplay.clear()
         imageofradio.clear()
+
       # Call api
-        # print(urlofapi)
         response = requests.get(urlofapi)
         response = response.json()
-        # print(response)
         length = len(response)
         for i in range(length):
             radiochannels.insert(len(radiochannels), response[i]['name'])
             urlsplay.insert(len(urlsplay), response[i]['url'])
             imageofradio.insert(len(imageofradio), response[i]['favicon'])
-        # update list
+
+        # Update list
         window.FindElement('fac').Update(values=radiochannels)
-# # Finish up by removing from the screen
-# window.close()
+
