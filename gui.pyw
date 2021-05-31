@@ -62,7 +62,7 @@ def Cast_window(indexurl,imageurl,nameofradio, playurls):
         if event == "Cast":
 
             # List chromecasts on the network, but don't connect
-            browser = pychromecast.discovery.discover_chromecasts()
+            services,browser = pychromecast.discovery.discover_chromecasts()
 
             # Shut down discovery
             pychromecast.discovery.stop_discovery(browser)
@@ -90,6 +90,7 @@ def Cast_window(indexurl,imageurl,nameofradio, playurls):
 
                 # Shut down discovery
                 pychromecast.discovery.stop_discovery(browser)
+
 # Text Position
 def TextLabel(text): return sg.Text(text+':', justification='left', size=(7,1), pad=(5,10))
 def TextLabelc(text): return sg.Text(text+':', justification='center', size=(7,1), pad=(110,10))
