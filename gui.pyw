@@ -1,10 +1,16 @@
-import PySimpleGUI as sg
-import requests
 import os
-from PIL import Image
 import glob
 import imghdr
-import pychromecast
+import sys
+try:
+  import PySimpleGUI as sg
+  import requests
+  import pychromecast
+  from PIL import Image
+except ImportError:
+  os.system("pip install PySimpleGUI Pillow Requests PyChromecast")
+  print("haha installed lol")
+  os.startfile(sys.argv[0])
 
 # Set color background
 sg.theme('GrayGrayGray')
