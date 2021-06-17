@@ -10,7 +10,7 @@ try:
 except ImportError:
   os.system("pip install PySimpleGUI Pillow Requests PyChromecast")
   # Reopen file after modules install
-  os.startfile(sys.argv[0])
+  os.system(sys.argv[0])
 
 # Set color background
 sg.theme('GrayGrayGray')
