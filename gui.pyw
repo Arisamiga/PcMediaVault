@@ -9,7 +9,7 @@ try:
   from PIL import Image
 except ImportError:
   os.system("pip install PySimpleGUI Pillow Requests PyChromecast")
-  print("haha installed lol")
+  # Reopen file after modules install
   os.startfile(sys.argv[0])
 
 # Set color background
