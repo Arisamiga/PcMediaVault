@@ -236,6 +236,7 @@ while True:
             print("A module is missing or its not installed corrently")
         else:
           os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
+          os.system(f"/Applications/VLC.app/Contents/MacOS/VLC {urlsplay[indexurl]} -f --no-video-title-show")
 
     # Event when someone presses Discorver Button
     if event == 'Discover':
