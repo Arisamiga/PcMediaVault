@@ -23,27 +23,105 @@ imageofradio = []
 # Country List
 countrylist = [
   "All Countries",
-  "Britain",
+  "Argentina",
+  "Australia",
+  "Austria",
+  "Belgium",
+  "Brazil",
+  "Canada",
+  "Chile",
+  "China",
+  "Colombia",
+  "Croatia",
+  "Czechia",
+  "France",
   "Germany",
   "Greece",
+  "Hungary",
+  "India",
   "Ireland",
-  "Sweden",
+  "Italy",
+  "Mexico",
+  "Peru",
+  "Poland",
+  "Portugal",
+  "Romania",
+  "Russia",
+  "Spain",
+  "Switzerland",
+  "The Netherlands",
+  "The Russian Federation",
+  "The United Kingdom",
   "The United States Of America",
+  "Turkey",
+  "Ukraine",
 ]
 # Genre List
 genrelist = [
   "All Genres",
+  "Alternative",
   "Blues",
-  "Classic Rock",
-  "Heavy Metal",
+  "Classical",
+  "Country",
+  "Dance",
+  "Disco",
+  "Drum and bass",
+  "Electronic",
+  "Folk",
+  "Jazz",
+  "Latin",
+  "Love",
+  "Metal",
+  "New Age",
+  "News",
+  "Oldies",
+  "Pop",
+  "Rap",
   "Rock",
+  "Reggae",
+  "Religion",
+  "RnB",
+  "Punk",
+  "Soul",
+  "Sports",
+  "Talk",
+  "Techno",
+  "Trance",
 ]
 # Language List
 langlist = [
   "All Languages",
+  "Arabic",
+  "Bulgarian",
+  "Chinese",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dutch",
   "English",
+  "Finnish",
+  "French",
+  "German",
   "Greek",
+  "Hindi",
+  "Hungarian",
   "Irish",
+  "Italian",
+  "Japanese",
+  "Korean",
+  "Norwegian",
+  "Polish",
+  "Portuguese",
+  "Romanian",
+  "Russian",
+  "Serbian",
+  "Slovak",
+  "Slovenian",
+  "Spanish",
+  "Swedish",
+  "Thai",
+  "Turkish",
+  "Ukrainian",
 ]
 # Find Window Picture
 window_picture = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images/logo_128.ico")
@@ -248,7 +326,10 @@ while True:
         response = requests.get(urlofapi)
         response = response.json()
         length = len(response)
-        for i in range(length):
+        if len(response) == 0:
+            radiochannels.insert(len(radiochannels), "* No Radio Stations Found")
+        else:
+          for i in range(length):
             radiochannels.insert(len(radiochannels), response[i]['name'])
             urlsplay.insert(len(urlsplay), response[i]['url'])
             imageofradio.insert(len(imageofradio), response[i]['favicon'])
