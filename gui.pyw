@@ -239,7 +239,7 @@ while True:
     if country != "":
       urlofapi = urlofapi + f"&country={country}"
     if genre != "":
-      urlofapi = urlofapi + f"&tag={genre}"
+      urlofapi = urlofapi + f"&tags={genre}"
     if event == sg.WIN_CLOSED: # if user closes window
         break
 
