@@ -222,11 +222,11 @@ while True:
     event, values = window.read()
     playbt = values['fac']
     nameinput = values['nameinput']
-    lang = values['lang']
+    lang = values['lang'].lower()
     country = values['country']
     genre = values['genre']
     # filters
-    if lang == "All Languages":
+    if lang == "all languages":
       lang = ""
     if country == "All Countries":
       country = ""
@@ -250,7 +250,7 @@ while True:
     if event == "Cast":
         # Check if a radio channel has been chosen.
         if not radiochannels:
-            print("Haha no crash")
+            pass
         else:
             indexurl = radiochannels.index(values['fac'][0])
             nameofradio = values['fac'][0]
@@ -267,51 +267,52 @@ while True:
 
     # Event when someone presses Play
     if event == "Play":
+      radiovalueurl= str(values['fac'][0])
+      radiovalue = str(values['fac'][0]).replace(r'[\W_]+', "").replace('\t', "").replace(" ","")
       if not radiochannels:
-        print("Haha no crash")
+        pass
       else:
-        indexurl = radiochannels.index(values['fac'][0])
+        indexurl = radiochannels.index(radiovalueurl)
         # Check if There is a image url
-        if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] == "":
+        if os.path.exists(f"./radio_images/{radiovalue}.png") == False and imageofradio[indexurl] == "":
             window['ri'].update(filename="./images/NoImage.png")
         else:
             # Download Radio Icon
-            if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == False and imageofradio[indexurl] != "":
+            if os.path.exists(f"./radio_images/{radiovalue}.png") == False and imageofradio[indexurl] != "":
                 response = requests.get(imageofradio[indexurl])
-                file = open(f"./radio_images/{str(values['fac'][0])}.png", "wb")
+                file = open(f"./radio_images/{radiovalue}.png", "wb")
                 file.write(response.content)
                 file.close()
-
             # Check if file is a image and if it is use it.
-            if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != None:
-                image = Image.open(f"./radio_images/{str(values['fac'][0])}.png")
+            if imghdr.what(f"./radio_images/{radiovalue}.png") != None:
+                image = Image.open(f"./radio_images/{radiovalue}.png")
                 new_image = image.resize((100, 100))
-                new_image.save(f"./radio_images/{str(values['fac'][0])}.png")
-                window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+                new_image.save(f"./radio_images/{radiovalue}.png")
+                window['ri'].update(filename=f"./radio_images/{radiovalue}.png")
 
             # If Image is not a png then replace with NoRadio Image
-            if imghdr.what(f"./radio_images/{str(values['fac'][0])}.png") != "png":
+            if imghdr.what(f"./radio_images/{radiovalue}.png") != "png":
                 window['ri'].update(filename="./images/NoImage.png")
 
             # Check if the png file actually exists.
-            if os.path.exists(f"./radio_images/{str(values['fac'][0])}.png") == True:
-                window['ri'].update(filename=f"./radio_images/{values['fac'][0]}.png")
+            if os.path.exists(f"./radio_images/{radiovalue}.png") == True:
+                window['ri'].update(filename=f"./radio_images/{radiovalue}.png")
 
         # Update Title for playing.
-        window['cp'].update(value=f"Currently Playing: {str(values['fac'][0])}")
+        window['cp'].update(value=f"Currently Playing: {radiovalueurl}")
 
         # Kill old vlc
         try:
           os.system("taskkill /im vlc.exe /f")
         except ImportError:
-          print("A module is missing or its not installed corrently")
+          pass
         else:
           os.system("killall -KILL vlc")
         # Start VLC
         try:
           os.system(f"start vlc.exe {urlsplay[indexurl]} -f --no-video-title-show")
         except ImportError:
-            print("A module is missing or its not installed corrently")
+            pass
         else:
           os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
           os.system(f"/Applications/VLC.app/Contents/MacOS/VLC {urlsplay[indexurl]} -f --no-video-title-show")
@@ -335,5 +336,5 @@ while True:
             imageofradio.insert(len(imageofradio), response[i]['favicon'])
 
         # Update list
-        window.FindElement('fac').Update(values=radiochannels)
+        window.find_element('fac').Update(values=radiochannels)
 
