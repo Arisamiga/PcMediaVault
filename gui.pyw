@@ -193,15 +193,15 @@ def Cast_window(indexurl, imageurl, nameofradio, playurls):
 # Text Position
 
 
-def TextLabel(text): 
+def TextLabel(text):
     return sg.Text(
         text+':', justification='left', size=(7, 1), pad=(5, 10))
-def TextLabelc(text): 
+def TextLabelc(text):
     return sg.Text(
         text+':', justification='center', size=(7, 1), pad=(110, 10))
 
 
-def TextLabelr(text): 
+def TextLabelr(text):
     return sg.Text(
         text+':', size=(7, 1), pad=(12, 10))
 
