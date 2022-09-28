@@ -124,6 +124,12 @@ langlist = [
     "Ukrainian",
 ]
 
+urlofapi: str
+playbt = []
+nameinput: str
+lang: str
+country: str
+genre: str
 
 # Find Window Picture
 window_picture = os.path.join(os.path.dirname(
@@ -187,24 +193,28 @@ def Cast_window(indexurl, imageurl, nameofradio, playurls):
 # Text Position
 
 
-def TextLabel(text): return sg.Text(
-    text+':', justification='left', size=(7, 1), pad=(5, 10))
-def TextLabelc(text): return sg.Text(
-    text+':', justification='center', size=(7, 1), pad=(110, 10))
+def TextLabel(text): 
+    return sg.Text(
+        text+':', justification='left', size=(7, 1), pad=(5, 10))
+def TextLabelc(text): 
+    return sg.Text(
+        text+':', justification='center', size=(7, 1), pad=(110, 10))
 
 
-def TextLabelr(text): return sg.Text(text+':', size=(7, 1), pad=(12, 10))
+def TextLabelr(text): 
+    return sg.Text(
+        text+':', size=(7, 1), pad=(12, 10))
 
 # Play Button
 
 
 def PlayButton(values, radiovalue, imageofradio, indexurl, radiovalueurl, urlsplay):
     # Check if There is a image url
-    if os.path.exists(f"./radio_images/{radiovalue}.png") == False and imageofradio[indexurl] == "":
+    if os.path.exists(f"./radio_images/{radiovalue}.png") is False and imageofradio[indexurl] == "":
         window['ri'].update(filename="./images/NoImage.png")
     else:
         # Download Radio Icon
-        if os.path.exists(f"./radio_images/{radiovalue}.png") == False and imageofradio[indexurl] != "":
+        if os.path.exists(f"./radio_images/{radiovalue}.png") is False and imageofradio[indexurl] != "":
             response = requests.get(imageofradio[indexurl])
             file = open(f"./radio_images/{radiovalue}.png", "wb")
             file.write(response.content)
@@ -244,6 +254,59 @@ def PlayButton(values, radiovalue, imageofradio, indexurl, radiovalueurl, urlspl
         os.system(f"vlc {urlsplay[indexurl]} -f --no-video-title-show")
         os.system(
             f"/Applications/VLC.app/Contents/MacOS/VLC {urlsplay[indexurl]} -f --no-video-title-show")
+
+
+def DiscoverButton():
+    radiochannels.clear()
+    urlsplay.clear()
+    imageofradio.clear()
+
+    # Call radio channels api
+    response = requests.get(urlofapi)
+    response = response.json()
+    length = len(response)
+    if len(response) == 0:
+        radiochannels.insert(len(radiochannels),
+                             "* No Radio Stations Found")
+    else:
+        for i in range(length):
+            radiochannels.insert(len(radiochannels), response[i]['name'])
+            urlsplay.insert(len(urlsplay), response[i]['url'])
+            imageofradio.insert(len(imageofradio), response[i]['favicon'])
+
+    # Update list
+    window.find_element('fac').Update(values=radiochannels)
+
+
+def Initfilters(values):
+    global urlofapi
+    global playbt
+    global nameinput
+    global lang
+    global country
+    global genre
+    urlofapi = "https://de1.api.radio-browser.info/json/stations/search?limit=500"
+    playbt = values['fac']
+    nameinput = values['nameinput']
+    lang = values['lang'].lower()
+    country = values['country']
+    genre = values['genre']
+
+    # filters
+    if lang == "all languages":
+        lang = ""
+    if country == "All Countries":
+        country = ""
+    if genre == "All Genres":
+        genre = ""
+    if nameinput != "":
+        urlofapi = urlofapi + f"&name={nameinput}"
+    if lang != "":
+        urlofapi = urlofapi + f"&language={lang}"
+    if country != "":
+        urlofapi = urlofapi + f"&country={country}"
+    if genre != "":
+        urlofapi = urlofapi + f"&tags={genre}"
 
 
 # Define the window's contents
@@ -290,29 +353,10 @@ window.set_icon(window_picture)
 
 # Display and interact with the buttons events
 while True:
-    urlofapi = "https://de1.api.radio-browser.info/json/stations/search?limit=500"
     event, values = window.read()
-    playbt = values['fac']
-    nameinput = values['nameinput']
-    lang: str = values['lang'].lower()
-    country = values['country']
-    genre = values['genre']
 
-    # filters
-    if lang == "all languages":
-        lang = ""
-    if country == "All Countries":
-        country = ""
-    if genre == "All Genres":
-        genre = ""
-    if nameinput != "":
-        urlofapi = urlofapi + f"&name={nameinput}"
-    if lang != "":
-        urlofapi = urlofapi + f"&language={lang}"
-    if country != "":
-        urlofapi = urlofapi + f"&country={country}"
-    if genre != "":
-        urlofapi = urlofapi + f"&tags={genre}"
+    Initfilters(values)
+
     if event == sg.WIN_CLOSED:  # if user closes window
         break
 
@@ -340,7 +384,7 @@ while True:
 
     # Event when someone presses Play
     if event == "Play":
-        if not radiochannels:
+        if not radiochannels or len(values['fac']) == 0:
             pass
         else:
             radiovalueurl = str(values['fac'][0])
@@ -352,22 +396,4 @@ while True:
 
     # Event when someone presses Discorver Button
     if event == 'Discover':
-        radiochannels.clear()
-        urlsplay.clear()
-        imageofradio.clear()
-
-        # Call radio channels api
-        response = requests.get(urlofapi)
-        response = response.json()
-        length = len(response)
-        if len(response) == 0:
-            radiochannels.insert(len(radiochannels),
-                                 "* No Radio Stations Found")
-        else:
-            for i in range(length):
-                radiochannels.insert(len(radiochannels), response[i]['name'])
-                urlsplay.insert(len(urlsplay), response[i]['url'])
-                imageofradio.insert(len(imageofradio), response[i]['favicon'])
-
-        # Update list
-        window.find_element('fac').Update(values=radiochannels)
+        DiscoverButton()
