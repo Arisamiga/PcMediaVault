@@ -222,7 +222,7 @@ while True:
     event, values = window.read()
     playbt = values['fac']
     nameinput = values['nameinput']
-    lang = values['lang'].lower()
+    lang:str = values['lang'].lower()
     country = values['country']
     genre = values['genre']
     # filters
